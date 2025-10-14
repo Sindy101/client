@@ -1,6 +1,8 @@
 import { useAppSelector } from '../../../../../store/hooks'
 import { ConditionalContainer } from '../../../../../ui/components/containers/ConditionalContainer'
 import { GameLayout } from '../../GameLayout'
+import { useAppDispatch } from '../../../../../store/hooks';
+import { openPopup } from '../../../../../features/settings/slices/popupSlice';
 import { Navigate } from 'react-router'
 import { ROUTER } from '../../../../../router/consts'
 import { AudioProvider } from '../../../../audio/AudioProvider'
@@ -12,13 +14,15 @@ export const GameContainer = () => {
 
     const isPassedGame = passed_game.id != 0
     const gameIsLoaded = data.id != 0
-
+    const dispatch = useAppDispatch()
     const handleNoGameAccess = () => {
         if (!survey_passed) {
             return <Navigate to={ROUTER.PATHS.HOME} />
         }
 
         if (isPassedGame) {
+            dispatch(openPopup({ text: "Вы успешно прошли игру!" }))
+
             return <Navigate to={ROUTER.PATHS.END_SURVEY} /> //END_SURVEY, was GAME_PASSED
         }
 

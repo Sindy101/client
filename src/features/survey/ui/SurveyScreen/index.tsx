@@ -193,6 +193,14 @@ export const SurveyScreen = () => {
         }
     }, [])
 
+    // <<< НАЧАЛО ИЗМЕНЕНИЙ >>>
+    const handleResetSurvey = () => {
+        dispatch(resetSurvey());
+    };
+
+    const isBadResult = survey_passed && getLastSectionScore() >= 3;
+    // <<< КОНЕЦ ИЗМЕНЕНИЙ >>>
+
     return (
         <WhiteContainer className={styles.section}>
             <header className={styles.header}>
@@ -201,18 +209,35 @@ export const SurveyScreen = () => {
             </header>
             <div className={styles.survey}>
                 {(survey_passed || localSurveyPassed) ? (
-                    <div className={styles.surveyPassed}>
-                        <motion.img
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            height={160} width={160} src={smileIcon} alt="" />
-                        <h2 className={styles.surveyTitle}>Спасибо тебе <br /> за пройденный опрос!</h2>
-                        <div className={styles.buttons}>
-                            <Button isLoading={sending_statuses.loading} onClick={onSubmit} classNames={{ button: `${styles.surveyButton}` }} >
-                                Отправить ответы
-                            </Button>
+                    // <<< НАЧАЛО ИЗМЕНЕНИЙ >>>
+                    isBadResult ? (
+                        <div className={styles.surveyPassed}>
+                            <motion.img
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                height={160} width={160} src={smileIcon} alt="" />
+                            <h2 className={styles.surveyTitle}>Пройди пожалуйста<br />опрос ещё раз</h2>
+                            <div className={styles.buttons}>
+                                <Button onClick={handleResetSurvey} classNames={{ button: `${styles.surveyButton}` }} >
+                                    Пройти ещё раз
+                                </Button>
+                            </div>
                         </div>
-                    </div>
+                    ) : (
+                        <div className={styles.surveyPassed}>
+                            <motion.img
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                height={160} width={160} src={smileIcon} alt="" />
+                            <h2 className={styles.surveyTitle}>Спасибо тебе <br /> за пройденный опрос!</h2>
+                            <div className={styles.buttons}>
+                                <Button isLoading={sending_statuses.loading} onClick={onSubmit} classNames={{ button: `${styles.surveyButton}` }} >
+                                    Отправить ответы
+                                </Button>
+                            </div>
+                        </div>
+                    )
+                    // <<< КОНЕЦ ИЗМЕНЕНИЙ >>>
                 ) : (
                     <>
                         <header className={styles.surveyHeader}>
