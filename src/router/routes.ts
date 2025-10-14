@@ -13,7 +13,7 @@ export const routes: Record<AppRouteType, AppRoute[]> = {
     AUTH: [
         {
             path: ROUTER.PATHS.HOME,
-            Component: GameSelectionScreen,
+            Component: SurveyContainer,
         },
         {
             path: ROUTER.PATHS.GAME_INFO,

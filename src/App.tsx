@@ -11,6 +11,7 @@ import { ExitButton } from './ui/components/service/ExitButton';
 
 function App() {
   const dispatch = useAppDispatch()
+
   const { full_screen_mode, visual_impaired_mode, font_size, theme_mode } = useAppSelector(state => state.settings)
 
   const documentElement = useRef(document.documentElement)
@@ -43,7 +44,7 @@ function App() {
   //   }
   // }, [visual_impaired_mode])
 
-    useEffect(() => {
+  useEffect(() => {
     if (documentElement.current) {
       let scale = 1;
       if (font_size === 'small') scale = 1;

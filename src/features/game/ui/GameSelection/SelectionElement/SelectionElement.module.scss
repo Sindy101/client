@@ -1,16 +1,10 @@
 .card {
-    // ... все твои стили рамки, отступов и т.д. остаются ...
+
     border-radius: var(--bradius-l);
     border: 1px solid var(--c-dark-alt);
     display: flex;
     flex-direction: column;
 
-    // --- ВОТ ГЛАВНОЕ ИЗМЕНЕНИЕ ---
-    // Вместо min-width используем свойство flex.
-    // Это шорткат для:
-    // flex-grow: 0;   (не растягиваться, если есть свободное место)
-    // flex-shrink: 0; (не сжиматься, если места мало)
-    // flex-basis: 450px; (базовая ширина элемента)
 
 
 
