@@ -13,7 +13,7 @@ export const routes: Record<AppRouteType, AppRoute[]> = {
     AUTH: [
         {
             path: ROUTER.PATHS.HOME,
-            Component: SurveyContainer,
+            Component: GameSelectionScreen,
         },
         {
             path: ROUTER.PATHS.GAME_INFO,
@@ -40,8 +40,8 @@ export const routes: Record<AppRouteType, AppRoute[]> = {
         //     path: ROUTER.PATHS.HOME,
         //     Component: SurveyContainer,
         // },
-        
-    ],  
+
+    ],
     NON_AUTH: [
         {
             path: ROUTER.PATHS.SIGNUP,
