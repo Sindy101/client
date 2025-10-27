@@ -6,11 +6,11 @@ import { Button } from '../../../../ui/components/buttons/Button'
 import { WhiteContainer } from '../../../../ui/components/containers/WhiteContainer'
 import { logoIcon, smileIcon } from '../../../../ui/icons'
 import { answerTheQuestion, sendSurvey, resetSendingSurveyStatus, resetSurvey, setSurveyPassed } from '../../slices/surveySlice'
+import { setPostGameReflectionDone } from '../../../settings/slices/settingsSlice'
 import { getAnsweredProgress } from '../../utils/helpers/getAnsweredProgress'
 import styles from './surveyScreen.module.scss'
 import end from '../../../../../public/survey/end.mp3'
 import { motion } from "motion/react"
-
 import { useNavigate } from 'react-router'
 import { ROUTER } from '../../../../router/consts'
 import { getGameInfoById } from '../../../game/slices/game-info/gameInfoSlice'
@@ -18,7 +18,6 @@ import { getGameInfoById } from '../../../game/slices/game-info/gameInfoSlice'
 // Sectioning now driven by group_id matching passed game's game_group_id
 
 export const SurveyScreen = () => {
-    // --- Чистый рабочий блок ---
     // Hooks and state
     const dispatch = useAppDispatch();
     const isEndSurvey = useAppSelector(state => state.settings.isEndSurvey);
@@ -34,11 +33,10 @@ export const SurveyScreen = () => {
         current_question_id,
         suggested_game,
         id,
-        sending_statuses
-        , lie_detected
+        sending_statuses,
+        lie_detected
     } = useAppSelector(state => state.survey);
     const user_id = useAppSelector(state => state.user.data.uuid);
-    const [localSurveyPassed, setLocalSurveyPassed] = useState(false);
 
     // Section/game logic
     const passedGameId = useAppSelector(state => state.game.passed_game.id);
@@ -48,15 +46,14 @@ export const SurveyScreen = () => {
     const [sectionIndex, setSectionIndex] = useState(0);
 
     const passedGameGroupId = useAppSelector(state => state.game.passed_game.game_group_id);
-    if (passedGameId && passedGameGroupId) {
+    const postGameReflectionDone = useAppSelector(state => state.settings.postGameReflectionDone);
+    if (passedGameId && passedGameGroupId && !postGameReflectionDone) {
         sectionQuestions = questions.items.filter(q => q.group_id === passedGameGroupId);
         if (sectionQuestions && sectionQuestions.length > 0) {
             filteredQuestions = sectionQuestions;
             isSectionMode = true;
         }
     }
-
-    // (no-op) group filtering is handled above; removed debug logging
 
     // Индекс текущего вопроса
     let currentIndex = 0;
@@ -123,9 +120,12 @@ export const SurveyScreen = () => {
                 dispatch(resetSurvey());
                 return;
             }
-            // If this was a section submission (post-game), allow the user to choose the next game manually
-            if (isSectionMode || localSurveyPassed) {
-                navigate(ROUTER.PATHS.GAME_SELECTION);
+            // If this was a section submission (post-game), mark reflection done
+            // so it won't be shown again, and go to the final congratulation screen.
+            if (isSectionMode) {
+                // Mark post-game reflection done globally
+                dispatch(setPostGameReflectionDone(true));
+                navigate(ROUTER.PATHS.GAME_PASSED);
                 return;
             }
 
@@ -136,7 +136,7 @@ export const SurveyScreen = () => {
                 dispatch(getGameInfoById({ id: suggested_game, include_details: true }));
             }
         }
-    }, [sending_statuses.success, isEndSurvey, navigate, dispatch, suggested_game]);
+    }, [sending_statuses.success, isEndSurvey, navigate, dispatch, suggested_game, isSectionMode]);
 
     useEffect(() => {
         return () => {
@@ -149,8 +149,7 @@ export const SurveyScreen = () => {
         const lastIds = questions.items.filter(q => q.group_id === 6).map(q => q.id);
         return answers_data.filter(a => lastIds.includes(a.question_id) && a.answer_option_id % 2 === 1).length;
     };
-    // Section scores are computed on backend for full survey; local partial submission simply sends group answers
-    // Backend will choose suggested_game for full survey; no local bestGame computation needed here
+
     const isLastQuestionInSection = isSectionMode && sectionIndex === filteredQuestions.length - 1;
     const onAnswer = (answer: Answer) => {
         setButtonsDisabled(true);
@@ -159,23 +158,20 @@ export const SurveyScreen = () => {
             dispatch(answerTheQuestion({ ...answer, id: answer.id }));
             if (isLastQuestionInSection) {
                 dispatch(setSurveyPassed(true));
-                return;
             } else {
                 setTimeout(() => {
                     setSectionIndex(idx => idx + 1);
-                }, 300);
-                return;
+                }, 100);
             }
+            return;
         }
         // Глобальный режим
         dispatch(answerTheQuestion(answer));
     };
+
     const onSubmit = () => {
-        const lastSectionScore = getLastSectionScore();
-        if (lastSectionScore >= 3) {
-            dispatch(resetSurvey());
-            return;
-        }
+        // Проверка на плохой результат теперь обрабатывается в UI,
+        // поэтому кнопка отправки не будет показана, если результат плохой.
         const payload: any = {
             survey_id: id,
             user_id: user_id,
@@ -185,13 +181,13 @@ export const SurveyScreen = () => {
         dispatch(sendSurvey(payload));
     };
 
-    // (sending_statuses.success effect already handled above with lie-detection)
+    // <<< НАЧАЛО ИЗМЕНЕНИЙ ИЗ ВТОРОГО ФАЙЛА >>>
+    const handleResetSurvey = () => {
+        dispatch(resetSurvey());
+    };
 
-    useEffect(() => {
-        return () => {
-            dispatch(resetSendingSurveyStatus())
-        }
-    }, [])
+    const isBadResult = survey_passed && getLastSectionScore() >= 3;
+    // <<< КОНЕЦ ИЗМЕНЕНИЙ ИЗ ВТОРОГО ФАЙЛА >>>
 
     return (
         <WhiteContainer className={styles.section}>
@@ -200,19 +196,36 @@ export const SurveyScreen = () => {
                 <img src={logoIcon} height={20} width={63} alt="Логотип" />
             </header>
             <div className={styles.survey}>
-                {(survey_passed || localSurveyPassed) ? (
-                    <div className={styles.surveyPassed}>
-                        <motion.img
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            height={160} width={160} src={smileIcon} alt="" />
-                        <h2 className={styles.surveyTitle}>Спасибо тебе <br /> за пройденный опрос!</h2>
-                        <div className={styles.buttons}>
-                            <Button isLoading={sending_statuses.loading} onClick={onSubmit} classNames={{ button: `${styles.surveyButton}` }} >
-                                Отправить ответы
-                            </Button>
+                {survey_passed ? (
+                    // <<< НАЧАЛО ИЗМЕНЕНИЙ ИЗ ВТОРОГО ФАЙЛА >>>
+                    isBadResult ? (
+                        <div className={styles.surveyPassed}>
+                            <motion.img
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                height={160} width={160} src={smileIcon} alt="" />
+                            <h2 className={styles.surveyTitle}>Пройди пожалуйста<br />опрос ещё раз</h2>
+                            <div className={styles.buttons}>
+                                <Button onClick={handleResetSurvey} classNames={{ button: `${styles.surveyButton}` }} >
+                                    Пройти ещё раз
+                                </Button>
+                            </div>
                         </div>
-                    </div>
+                    ) : (
+                        <div className={styles.surveyPassed}>
+                            <motion.img
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                height={160} width={160} src={smileIcon} alt="" />
+                            <h2 className={styles.surveyTitle}>Спасибо тебе <br /> за пройденный опрос!</h2>
+                            <div className={styles.buttons}>
+                                <Button isLoading={sending_statuses.loading} onClick={onSubmit} classNames={{ button: `${styles.surveyButton}` }} >
+                                    Отправить ответы
+                                </Button>
+                            </div>
+                        </div>
+                    )
+                    // <<< КОНЕЦ ИЗМЕНЕНИЙ ИЗ ВТОРОГО ФАЙЛА >>>
                 ) : (
                     <>
                         <header className={styles.surveyHeader}>

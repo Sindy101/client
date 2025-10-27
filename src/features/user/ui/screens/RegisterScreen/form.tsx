@@ -79,9 +79,9 @@ export const RegisterForm = () => {
     const fetchSchools = () => {
         let currentSkip = 0
 
-        if (schools.pagination.part > 1) {
-            currentSkip = (schools.pagination.part - 1) * schools.pagination.limit
-        }
+        //if (schools.pagination.part > 1) {
+        //    currentSkip = (schools.pagination.part - 1) * schools.pagination.limit
+        //}
 
         const req: GetSchoolsReq = {
             skip: currentSkip,
@@ -89,6 +89,7 @@ export const RegisterForm = () => {
             query: searchSchoolsValue,
             city_id: formik.values.city_id || undefined
         }
+
         dispatch(getSchools(req))
     }
 
@@ -140,21 +141,17 @@ export const RegisterForm = () => {
     //     }
     // }, [defferedSearchSchoolsValue])
 
-    useEffect(() => {
-        // When search input for schools is cleared, reset selected school and reload schools
-        if (!defferedSearchSchoolsValue.length) {
-            if (formik.values.school) {
-                registerFormSelect("school", "")
-            }
-            dispatch(resetSchoolPagination())
-        }
-    }, [defferedSearchSchoolsValue])
+     useEffect(() => {
+    dispatch(resetSchoolPagination())
+    
+    if (formik.values.school && !defferedSearchSchoolsValue.length) {
+        registerFormSelect("school", "")
+    }
 
-    useEffect(() => {
-        if (schools.pagination.part == 1) {
-            fetchSchools()
-        }
-    }, [schools.pagination.part])
+    if (formik.values.city_id) {
+        fetchSchools() 
+    }
+}, [defferedSearchSchoolsValue, formik.values.city_id])
 
     return (
         <form autoComplete={"off"} onSubmit={formik.handleSubmit} action="" className={styles.form}>

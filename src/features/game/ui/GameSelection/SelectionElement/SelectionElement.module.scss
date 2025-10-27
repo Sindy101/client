@@ -1,9 +1,11 @@
 .card {
+    // ... все твои стили рамки, отступов и т.д. остаются ...
     border-radius: var(--bradius-l);
     border: 1px solid var(--c-dark-alt);
-    min-width: 450px;
     display: flex;
     flex-direction: column;
+
+
 
     .cover {
         @include square(100%);
@@ -12,13 +14,13 @@
         border-top-right-radius: var(--bradius-l);
     }
 
-    .info{
+    .info {
         flex: 1;
         padding: 25px;
         display: flex;
         flex-direction: column;
 
-        .title{
+        .title {
             @include fluid-text($h2-min, $h2-max);
             font-weight: 600;
             min-height: 120px;
@@ -33,13 +35,14 @@
             padding-bottom: 10px;
         }
 
-        .SelectionBottom{
+        .SelectionBottom {
+            margin-top: auto; // Прижимает кнопки к низу карточки
             display: flex;
             flex-direction: row;
             align-items: center;
             gap: 25px;
 
-            .gameInfoSertificate{
+            .gameInfoSertificate {
                 display: flex;
                 font-size: var(--fz-s);
                 column-gap: 5px;
@@ -47,8 +50,5 @@
                 font-weight: 500;
             }
         }
-
     }
-
-
 }
