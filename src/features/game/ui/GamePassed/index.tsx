@@ -1,30 +1,63 @@
-import React, { useEffect } from 'react';
+// no default React import required
 import { useAudio } from '../../../audio/AudioProvider';
 import { WhiteContainer } from '../../../../ui/components/containers/WhiteContainer';
 import styles from './gamePassed.module.scss';
 import game_end from '../../../../assets/audio/game_end.mp3'
 import { logoIcon, successIcon } from '../../../../ui/icons';
 import { Button } from '../../../../ui/components/buttons/Button';
-import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
+import { useAppSelector } from '../../../../store/hooks';
 import { addToStorage } from '../../../../utils/localStorageExplorer';
 import { storeToken } from '../../../user/utils/storeToken';
 import { initialUserState } from '../../../user/slices/userState';
 import { useNavigate } from 'react-router'
+import { useEffect } from 'react'
+import { api } from '../../../../api/instance';
+import { ROUTER } from '../../../../router/consts'
 
 export const GamePassed = () => {
     const { loadTrack, play, pause } = useAudio();
     const audio_muted = useAppSelector(state => state.settings.audio_muted);
-    const dispatch = useAppDispatch()
-    const navigate = useNavigate();
     const {
-        id,
-        sertificate_url,
         title,
         cover_image
     } = useAppSelector(state => state.game.passed_game)
+    const postGameReflectionDone = useAppSelector(state => state.settings.postGameReflectionDone);
+    // Получаем имя и фамилию пользователя
+    const first_name = useAppSelector(state => state.user.data.first_name);
+    const last_name = useAppSelector(state => state.user.data.last_name);
+    const navigate = useNavigate();
 
-    const loadSertificate = () => {
-        alert("Сертификат пока не доступен")
+    useEffect(() => {
+        // If post-game reflection hasn't been shown yet, open the end-survey flow
+        if (!postGameReflectionDone) {
+            navigate(ROUTER.PATHS.END_SURVEY);
+        }
+    }, [postGameReflectionDone, navigate]);
+
+    // Функция для скачивания сертификата
+    const loadSertificate = async (e?: React.MouseEvent) => {
+        if (e) e.preventDefault();
+        try {
+            const response = await api.post(
+                'certificate/pdf',
+                {
+                    last_name,
+                    first_name,
+                    game_name: title
+                },
+                { responseType: 'blob' }
+            );
+            const url = window.URL.createObjectURL(response.data);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'certificate.pdf';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (err) {
+            alert('Не удалось скачать сертификат');
+        }
     }
 
     useEffect(() => {

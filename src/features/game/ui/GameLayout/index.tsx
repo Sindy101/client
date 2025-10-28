@@ -36,7 +36,7 @@ export const GameLayout = () => {
     useEffect(() => {
         const bgTrack = loadTrack('bg', bgAudio, true)
         // Громкость фоновой музыки теперь зависит от music_muted
-        setVolume(bgTrack.id, music_muted ? 0 : 0.3)
+        setVolume(bgTrack.id, music_muted ? 0 : 0.2)
         play(bgTrack.id)
         // Добавляем music_muted в массив зависимостей, чтобы громкость менялась при клике
     }, [music_muted])

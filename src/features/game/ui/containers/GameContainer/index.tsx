@@ -1,13 +1,12 @@
 import { useAppSelector } from '../../../../../store/hooks'
 import { ConditionalContainer } from '../../../../../ui/components/containers/ConditionalContainer'
 import { GameLayout } from '../../GameLayout'
-import { useAppDispatch } from '../../../../../store/hooks';
-import { openPopup } from '../../../../../features/settings/slices/popupSlice';
 import { Navigate } from 'react-router'
 import { ROUTER } from '../../../../../router/consts'
 import { AudioProvider } from '../../../../audio/AudioProvider'
 import { LoaderWidget } from '../../../../../ui/components/service/LoaderWidget'
-
+import { useAppDispatch } from '../../../../../store/hooks';
+import { openPopup } from '../../../../../features/settings/slices/popupSlice';
 export const GameContainer = () => {
     const { survey_passed } = useAppSelector(state => state.survey)
     const { passed_game, data, game_is_in_progress } = useAppSelector(state => state.game)
@@ -22,8 +21,7 @@ export const GameContainer = () => {
 
         if (isPassedGame) {
             dispatch(openPopup({ text: "Вы успешно прошли игру!" }))
-
-            return <Navigate to={ROUTER.PATHS.END_SURVEY} /> //END_SURVEY, was GAME_PASSED
+            return <Navigate to={ROUTER.PATHS.GAME_PASSED} />
         }
 
         if (!gameIsLoaded && gameIsLoaded) {

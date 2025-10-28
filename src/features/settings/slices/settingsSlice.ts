@@ -9,6 +9,8 @@ type SettingsSliceState = {
     theme_mode: 'Цветовая схема №1' | 'Цветовая схема №2' | 'Цветовая схема №3' | 'Цветовая схема №4' | 'Цветовая схема №5';
     visual_impaired_panel_open: boolean;
     isEndSurvey: boolean;
+    // Whether the post-game reflection survey has already been shown once
+    postGameReflectionDone: boolean;
 }
 
 const initialState: SettingsSliceState = {
@@ -19,7 +21,8 @@ const initialState: SettingsSliceState = {
     font_size: 'small',
     theme_mode: 'Цветовая схема №1',
     visual_impaired_panel_open: false,
-    isEndSurvey: false
+    isEndSurvey: false,
+    postGameReflectionDone: false,
 };
 
 const settingsSlice = createSlice({
@@ -66,6 +69,9 @@ const settingsSlice = createSlice({
         setSurvey: (state) => {
             state.isEndSurvey = true
         },
+        setPostGameReflectionDone: (state, action: PayloadAction<boolean>) => {
+            state.postGameReflectionDone = action.payload;
+        },
         resetSettings: () => initialState
     }
 });
@@ -83,6 +89,7 @@ export const {
     setFontSize,
     setThemeMode,
     setSurvey,
+    setPostGameReflectionDone,
     resetSettings
 } = settingsSlice.actions;
 

@@ -15,9 +15,14 @@ export const SurveyInfoScreen = () => {
     const audioId = 'instruction';
     const audio_muted = useAppSelector(state => state.settings.audio_muted);
     const surveyLoaded = useAppSelector(state => state.survey.questions.statuses.success);
+    const isEndSurvey = useAppSelector(state => state.settings.isEndSurvey);
 
     useEffect(() => {
-        if (!showSurveyScreen) {
+        // If this route was opened as EndSurvey flow, open the SurveyScreen automatically
+        if (isEndSurvey) {
+            setShowSurveyScreen(true);
+        }
+        if (!showSurveyScreen && !isEndSurvey) {
             loadTrack(audioId, instruction);
             if (!audio_muted) {
                 play(audioId);
