@@ -4,7 +4,7 @@ import { useAppDispatch, useAppSelector } from '../../../../store/hooks'
 import { Answer } from '../../../../types/entities'
 import { Button } from '../../../../ui/components/buttons/Button'
 import { WhiteContainer } from '../../../../ui/components/containers/WhiteContainer'
-import { logoIcon, smileIcon } from '../../../../ui/icons'
+import { logoIcon, smileIcon, worriedfaceIcon } from '../../../../ui/icons'
 import { answerTheQuestion, sendSurvey, resetSendingSurveyStatus, resetSurvey, setSurveyPassed } from '../../slices/surveySlice'
 import { setPostGameReflectionDone } from '../../../settings/slices/settingsSlice'
 import { getAnsweredProgress } from '../../utils/helpers/getAnsweredProgress'
@@ -175,8 +175,8 @@ export const SurveyScreen = () => {
         const payload: any = {
             survey_id: id,
             user_id: user_id,
-            // If section mode, send only answers that belong to this group's questions
-            answers: isSectionMode ? answers_data.filter(a => filteredQuestions.map(q => q.id).includes(a.question_id)) : answers_data
+            answers: answers_data,
+            is_reflection: isSectionMode
         };
         dispatch(sendSurvey(payload));
     };
@@ -203,8 +203,10 @@ export const SurveyScreen = () => {
                             <motion.img
                                 initial={{ scale: 0 }}
                                 animate={{ scale: 1 }}
-                                height={160} width={160} src={smileIcon} alt="" />
-                            <h2 className={styles.surveyTitle}>Пройди пожалуйста<br />опрос ещё раз</h2>
+                                height={160} width={160} src={worriedfaceIcon} alt="" />
+                            
+                            <h2 className={styles.surveyTitle}>Ты был недостаточно искренен </h2>
+                            <h2 className={styles.surveyDescription}><br /> Пройди пожалуйста опрос ещё раз</h2>
                             <div className={styles.buttons}>
                                 <Button onClick={handleResetSurvey} classNames={{ button: `${styles.surveyButton}` }} >
                                     Пройти ещё раз

@@ -2,6 +2,7 @@ import arrowDownPath from '../../assets/icons/arrow-down.svg'
 import tickPath from '../../assets/icons/tick.svg'
 import logoPath from '../../assets/images/logo.svg'
 import smilePath from '../../assets/icons/smile.svg'
+import worriedfacePath from '../../assets/icons/worried_face.svg'
 import clockPath from '../../assets/icons/clock.svg'
 import volumePath from '../../assets/icons/volume.svg'
 import fullsizeEnablePath from '../../assets/icons/fullscreen-enable.svg'
@@ -21,6 +22,7 @@ export const logoIcon = logoPath
 export const arrowDownIcon = arrowDownPath
 export const tickIcon = tickPath
 export const smileIcon = smilePath
+export const worriedfaceIcon = worriedfacePath
 export const clockIcon = clockPath
 export const volumeIcon = volumePath
 export const fullsizeEnableIcon = fullsizeEnablePath
