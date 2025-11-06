@@ -14,6 +14,7 @@ import { motion } from "motion/react"
 import { useNavigate } from 'react-router'
 import { ROUTER } from '../../../../router/consts'
 import { getGameInfoById } from '../../../game/slices/game-info/gameInfoSlice'
+import { CONFIG } from '../../../../config'
 
 // Sectioning now driven by group_id matching passed game's game_group_id
 
@@ -73,6 +74,7 @@ export const SurveyScreen = () => {
     }, [dispatch]);
 
     useEffect(() => {
+        if (survey_passed) return;
         if (!currentQuestion || !currentQuestion.voice) return;
         const audioId = `q_${currentQuestion.id}`;
         loadTrack(audioId, currentQuestion.voice);
@@ -107,7 +109,7 @@ export const SurveyScreen = () => {
         setButtonsDisabled(true);
         const timer = setTimeout(() => {
             setButtonsDisabled(false);
-        }, 100);
+        }, CONFIG.USE_DEBUG ? 100 : 5000);
         return () => {
             clearTimeout(timer);
         }
@@ -206,7 +208,7 @@ export const SurveyScreen = () => {
                                 height={160} width={160} src={worriedfaceIcon} alt="" />
                             
                             <h2 className={styles.surveyTitle}>Ты был недостаточно искренен </h2>
-                            <h2 className={styles.surveyDescription}><br /> Пройди пожалуйста опрос ещё раз</h2>
+                            <span className={styles.suggestion}><br /> Пройди пожалуйста опрос ещё раз</span>
                             <div className={styles.buttons}>
                                 <Button onClick={handleResetSurvey} classNames={{ button: `${styles.surveyButton}` }} >
                                     Пройти ещё раз

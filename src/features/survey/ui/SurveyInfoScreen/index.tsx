@@ -18,11 +18,13 @@ export const SurveyInfoScreen = () => {
     const isEndSurvey = useAppSelector(state => state.settings.isEndSurvey);
 
     useEffect(() => {
-        // If this route was opened as EndSurvey flow, open the SurveyScreen automatically
         if (isEndSurvey) {
             setShowSurveyScreen(true);
         }
-        if (!showSurveyScreen && !isEndSurvey) {
+    }, []);
+
+    useEffect(() => {
+        if (!showSurveyScreen) {
             loadTrack(audioId, instruction);
             if (!audio_muted) {
                 play(audioId);

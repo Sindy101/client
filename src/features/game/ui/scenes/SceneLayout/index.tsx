@@ -32,29 +32,40 @@ export const SceneLayout: FC<SceneLayoutProps> = ({ scene }) => {
     const dialogues = scene.payload.dialogues || []
 
     // Воспроизведение звука ачивки при показе карточки достижения (один диалог)
-    useEffect(() => {
-        if (
-            currentSceneIsDialog &&
-            dialogues.length === 1 &&
-            scene.payload.achievement &&
-            !isPlaying
-        ) {
-            loadTrack(achievementAudioId, achievementAudioFile);
-            if (!audio_muted) {
-                play(achievementAudioId);
-            } else {
-                pause(achievementAudioId);
-            }
-        }
-        return () => {
-            pause(achievementAudioId);
-        };
-    }, [currentSceneIsDialog, dialogues.length, scene.payload.achievement, isPlaying, audio_muted]);
+    // useEffect(() => {
+    //     if (
+    //         currentSceneIsDialog &&
+    //         dialogues.length === 1 &&
+    //         scene.payload.achievement &&
+    //         !isPlaying
+    //     ) {
+    //         loadTrack(achievementAudioId, achievementAudioFile);
+    //         if (!audio_muted) {
+    //             play(achievementAudioId);
+    //         } else {
+    //             pause(achievementAudioId);
+    //         }
+    //     }
+    //     return () => {
+    //         pause(achievementAudioId);
+    //     };
+    // }, [currentSceneIsDialog, dialogues.length, scene.payload.achievement, isPlaying, audio_muted]);
 
     const playNextDialogAudio = () => {
         setIsPlaying(false)
         if (currentDialogIndex < dialogues.length - 1) {
-            setCurrentDialogIndex(prev => prev + 1)
+            setCurrentDialogIndex(prev => prev + 1);
+        } 
+        else {
+            if (scene.payload.achievement && dialogues.length === 1) {
+                loadTrack(achievementAudioId, achievementAudioFile);
+                if (!audio_muted) {
+                    play(achievementAudioId);
+                } 
+                else {
+                    pause(achievementAudioId);
+                }
+            }
         }
     }
 
@@ -214,7 +225,7 @@ export const SceneLayout: FC<SceneLayoutProps> = ({ scene }) => {
                 <aside className={styles.sceneControls}>
                     <ControlButton
                         classNames={{ button: styles.nextSceneButton }}
-                        // disabled={!current_scene_animated || isPlaying || (!currentDialogIndex && dialogues.length > 1 && Boolean(dialogues[1].voice))}
+                            disabled={!CONFIG.USE_DEBUG && (!current_scene_animated || isPlaying || (!currentDialogIndex && dialogues.length > 1 && Boolean(dialogues[1].voice)))}
                         onClick={handleNextScene}>
                         Далее
                         <img src={arrowRightIcon} height={18} width={18} alt="" />

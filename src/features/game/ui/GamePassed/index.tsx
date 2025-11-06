@@ -12,7 +12,6 @@ import { initialUserState } from '../../../user/slices/userState';
 import { useNavigate } from 'react-router'
 import { useEffect } from 'react'
 import { api } from '../../../../api/instance';
-import { ROUTER } from '../../../../router/consts'
 
 export const GamePassed = () => {
     const { loadTrack, play, pause } = useAudio();
@@ -21,18 +20,10 @@ export const GamePassed = () => {
         title,
         cover_image
     } = useAppSelector(state => state.game.passed_game)
-    const postGameReflectionDone = useAppSelector(state => state.settings.postGameReflectionDone);
     // Получаем имя и фамилию пользователя
     const first_name = useAppSelector(state => state.user.data.first_name);
     const last_name = useAppSelector(state => state.user.data.last_name);
     const navigate = useNavigate();
-
-    useEffect(() => {
-        // If post-game reflection hasn't been shown yet, open the end-survey flow
-        if (!postGameReflectionDone) {
-            navigate(ROUTER.PATHS.END_SURVEY);
-        }
-    }, [postGameReflectionDone, navigate]);
 
     // Функция для скачивания сертификата
     const loadSertificate = async (e?: React.MouseEvent) => {
