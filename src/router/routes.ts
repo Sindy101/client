@@ -40,8 +40,8 @@ export const routes: Record<AppRouteType, AppRoute[]> = {
         //     path: ROUTER.PATHS.HOME,
         //     Component: SurveyContainer,
         // },
-        
-    ],  
+
+    ],
     NON_AUTH: [
         {
             path: ROUTER.PATHS.SIGNUP,
