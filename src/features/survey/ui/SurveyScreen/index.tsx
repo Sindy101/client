@@ -10,6 +10,7 @@ import { setPostGameReflectionDone } from '../../../settings/slices/settingsSlic
 import { getAnsweredProgress } from '../../utils/helpers/getAnsweredProgress'
 import styles from './surveyScreen.module.scss'
 import end from '../../../../../public/survey/end.mp3'
+import bad_end from '../../../../../public/survey/bad_end.mp3'
 import { motion } from "motion/react"
 import { useNavigate } from 'react-router'
 import { ROUTER } from '../../../../router/consts'
@@ -87,10 +88,24 @@ export const SurveyScreen = () => {
             pause(audioId);
         }
     }, [currentQuestion?.voice, audio_muted, currentQuestion?.id]);
+    const getLastSectionScore = () => {
+        const lastIds = questions.items.filter(q => q.group_id === 6).map(q => q.id);
+        return answers_data.filter(a => lastIds.includes(a.question_id) && a.answer_option_id % 2 === 1).length;
+    };
 
+    const isBadResult = survey_passed && getLastSectionScore() >= 3;
     useEffect(() => {
         const endAudioId = 'survey_end';
-        if (survey_passed) {
+        if (survey_passed && isBadResult) {
+            loadTrack(endAudioId, bad_end);
+            if (!audio_muted) {
+                play(endAudioId);
+            }
+            else {
+                pause(endAudioId);
+            }
+        }
+        if (survey_passed && !isBadResult) {
             loadTrack(endAudioId, end);
             if (!audio_muted) {
                 play(endAudioId);
@@ -104,7 +119,6 @@ export const SurveyScreen = () => {
             pause(endAudioId);
         }
     }, [survey_passed, audio_muted]);
-
     useEffect(() => {
         setButtonsDisabled(true);
         const timer = setTimeout(() => {
@@ -147,10 +161,7 @@ export const SurveyScreen = () => {
     }, [dispatch]);
 
     // Section scoring logic
-    const getLastSectionScore = () => {
-        const lastIds = questions.items.filter(q => q.group_id === 6).map(q => q.id);
-        return answers_data.filter(a => lastIds.includes(a.question_id) && a.answer_option_id % 2 === 1).length;
-    };
+
 
     const isLastQuestionInSection = isSectionMode && sectionIndex === filteredQuestions.length - 1;
     const onAnswer = (answer: Answer) => {
@@ -188,7 +199,6 @@ export const SurveyScreen = () => {
         dispatch(resetSurvey());
     };
 
-    const isBadResult = survey_passed && getLastSectionScore() >= 3;
     // <<< КОНЕЦ ИЗМЕНЕНИЙ ИЗ ВТОРОГО ФАЙЛА >>>
 
     return (
@@ -206,7 +216,7 @@ export const SurveyScreen = () => {
                                 initial={{ scale: 0 }}
                                 animate={{ scale: 1 }}
                                 height={160} width={160} src={worriedfaceIcon} alt="" />
-                            
+
                             <h2 className={styles.surveyTitle}>Ты был недостаточно искренен </h2>
                             <span className={styles.suggestion}><br /> Пройди пожалуйста опрос ещё раз</span>
                             <div className={styles.buttons}>
